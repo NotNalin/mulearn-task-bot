@@ -30,7 +30,7 @@ class Role(discord.ui.Select):
                         await interaction.user.remove_roles(i) # Remove all roles in ROLES that are not the selected role
                 await interaction.user.add_roles(role)
                 self.bot.db.execute(
-                    "INSERT INTO user_role (discord_id, role_id) VALUES (:discord_id, :role_id)",
+                    "UPDATE user_role SET role_id = :role_id WHERE discord_id = :discord_id",
                     {"discord_id": interaction.user.id, "role_id": role.id},
                 )
                 await interaction.response.send_message(f"You chose the role {self.values[0]}", ephemeral=True)
