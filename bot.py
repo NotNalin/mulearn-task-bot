@@ -1,10 +1,7 @@
-import os
 from decouple import config
-
 
 import discord
 from discord.ext import commands
-from discord import app_commands
 
 from database.connection import DBConnection
 
@@ -13,11 +10,11 @@ COGS = ["cogs.welcome", "cogs.wordcounting", "cogs.roles"]
 
 class Bot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix=commands.when_mentioned_or("."), intents=discord.Intents.all())
         self.db = DBConnection()
         self.db.execute("CREATE TABLE IF NOT EXISTS welcome(GUILD_ID BIGINT, CHANNEL_ID BIGINT)")
         self.db.execute("CREATE TABLE IF NOT EXISTS user_words(discord_id BIGINT, word VARCHAR(255))")
         self.db.execute("CREATE TABLE IF NOT EXISTS user_role(discord_id BIGINT, role_id BIGINT)")
+        super().__init__(command_prefix=".", intents=discord.Intents.all(), help_command=None)
 
     async def setup_hook(self):
         for cog in COGS:
@@ -28,6 +25,7 @@ class Bot(commands.Bot):
         print(f"Logged in as {self.user} (ID: {self.user.id})")
         await bot.tree.sync()
 
+    # Error handling
     async def on_tree_error(self, interaction: discord.Interaction, error):
         if isinstance(error, discord.errors.Forbidden):
             try:
@@ -49,7 +47,7 @@ class Bot(commands.Bot):
 bot = Bot()
 bot.tree.on_error = bot.on_tree_error
 
-
+# Help command
 @bot.tree.command(name="help", description="List of commands")
 async def help(interaction: discord.Interaction):
     embed = discord.Embed(title="Help", description="List of commands")

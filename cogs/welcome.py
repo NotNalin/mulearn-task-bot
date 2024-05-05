@@ -4,13 +4,12 @@ from discord import app_commands
 
 
 class Welcome(commands.Cog):
-
     def __init__(self, bot):
         self.bot = bot
 
+    # Send a welcome message when a user joins the server
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-
         guild = member.guild
         result = self.bot.db.fetch_one("SELECT CHANNEL_ID FROM welcome WHERE GUILD_ID = :guild_id", {"guild_id": guild.id})
         if result is None:
@@ -33,12 +32,13 @@ class Welcome(commands.Cog):
             await channel.send(f"{member.mention}", embed=embed)
 
         except discord.errors.Forbidden:
-            print(f"Couldn't send message in {channel}.")
+            # Couldn't send message in channel
+            pass
         try:
             await member.send(f"Welcome to the server {guild.name}, {member.mention}!\nWe hope you enjoy your stay.")
         except discord.errors.Forbidden:
-            print(f"Couldn't send message to {member}.")
-        print(f"{member} has joined the server.")
+            # Couldn't send message to member
+            pass
 
     @app_commands.command(name="set_welcome_channel", description="Set the welcome channel")
     @app_commands.checks.has_permissions(administrator=True)

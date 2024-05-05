@@ -6,6 +6,7 @@ ROLES = ["Red", "Green", "Blue"]
 
 
 class Role(discord.ui.Select):
+    """ Select menu with callback handler """
     def __init__(self, bot):
         self.bot = bot
         options = [
@@ -26,7 +27,7 @@ class Role(discord.ui.Select):
             try:
                 for i in interaction.user.roles:
                     if i.name in ROLES and i != role:
-                        await interaction.user.remove_roles(i)
+                        await interaction.user.remove_roles(i) # Remove all roles in ROLES that are not the selected role
                 await interaction.user.add_roles(role)
                 self.bot.db.execute(
                     "INSERT INTO user_role (discord_id, role_id) VALUES (:discord_id, :role_id)",
@@ -35,6 +36,8 @@ class Role(discord.ui.Select):
                 await interaction.response.send_message(f"You chose the role {self.values[0]}", ephemeral=True)
             except discord.errors.Forbidden:
                 await interaction.response.send_message("I don't have permission to add roles to you", ephemeral=True)
+        else:
+            await interaction.response.send_message("I couldn't find that role", ephemeral=True)
 
 
 class Roles(commands.Cog):
