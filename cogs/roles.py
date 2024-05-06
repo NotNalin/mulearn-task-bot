@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
+# List of roles
 ROLES = ["Red", "Green", "Blue"]
 
 
@@ -9,6 +10,7 @@ class Role(discord.ui.Select):
     """ Select menu with callback handler """
     def __init__(self, bot):
         self.bot = bot
+        # Select menu options
         options = [
             discord.SelectOption(label="Red", description="Red colour role", emoji="🟥"),
             discord.SelectOption(label="Green", description="Green colour role", emoji="🟩"),
@@ -21,6 +23,7 @@ class Role(discord.ui.Select):
             options=options,
         )
 
+    # Callback when an option is selected
     async def callback(self, interaction: discord.Interaction):
         role = discord.utils.get(interaction.guild.roles, name=self.values[0])
         if role:
@@ -30,7 +33,7 @@ class Role(discord.ui.Select):
                         await interaction.user.remove_roles(i) # Remove all roles in ROLES that are not the selected role
                 await interaction.user.add_roles(role)
                 self.bot.db.execute(
-                    "UPDATE user_role SET role_id = :role_id WHERE discord_id = :discord_id",
+                    "INSERT INTO user_role (discord_id, role_id) VALUES (:discord_id, :role_id) ON DUPLICATE KEY UPDATE role_id = :role_id",
                     {"discord_id": interaction.user.id, "role_id": role.id},
                 )
                 await interaction.response.send_message(f"You chose the role {self.values[0]}", ephemeral=True)

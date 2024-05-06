@@ -44,7 +44,7 @@ class Welcome(commands.Cog):
     @app_commands.checks.has_permissions(administrator=True)
     async def set_welcome_channel(self, interaction: discord.Interaction, channel: discord.TextChannel):
         self.bot.db.execute(
-            "INSERT INTO welcome (GUILD_ID, CHANNEL_ID) VALUES (:guild_id, :channel_id)",
+            "INSERT INTO welcome (GUILD_ID, CHANNEL_ID) VALUES (:guild_id, :channel_id) ON DUPLICATE KEY UPDATE CHANNEL_ID = :channel_id",
             {"guild_id": interaction.guild.id, "channel_id": channel.id},
         )
         await interaction.response.send_message(f"Welcome channel set to {channel.mention}.", ephemeral=True)

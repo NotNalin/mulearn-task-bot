@@ -7,7 +7,7 @@ class WordCounting(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # Add words from message to database
+    # Checks for new messages and add words to the user_words table
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.bot:
@@ -18,10 +18,9 @@ class WordCounting(commands.Cog):
                 "INSERT INTO user_words (discord_id, word) VALUES (:discord_id, :word)", {"discord_id": message.author.id, "word": word}
             )
 
-    @app_commands.command(description="Get the top 10 words used")
+    @app_commands.command(description="Get the top 10 words used overall")
     async def word_status(self, interaction: discord.Interaction):
         result = self.bot.db.fetch_all("SELECT word, COUNT(*) as count FROM user_words GROUP BY word ORDER BY count DESC LIMIT 10")
-
         embed = discord.Embed(
             title="Word Status",
             description="\n".join([f"{row[0]}: {row[1]}" for row in result]),
