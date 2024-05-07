@@ -30,7 +30,12 @@ class Role(discord.ui.Select):
             try:
                 for i in interaction.user.roles:
                     if i.name in ROLES and i != role:
-                        await interaction.user.remove_roles(i) # Remove all roles in ROLES that are not the selected role
+                        try:
+                            # Remove all roles in ROLES that are not the selected role
+                            await interaction.user.remove_roles(i)  
+                        except discord.errors.Forbidden:
+                            # If the bot doesn't have permission to remove the role, ignore the error
+                            pass
                 await interaction.user.add_roles(role)
                 self.bot.db.execute(
                     "INSERT INTO user_role (discord_id, role_id) VALUES (:discord_id, :role_id) ON DUPLICATE KEY UPDATE role_id = :role_id",
